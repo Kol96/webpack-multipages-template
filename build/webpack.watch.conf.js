@@ -1,15 +1,15 @@
-'use strict';
-const path = require('path');
-const utils = require('./utils');
-const webpack = require('webpack');
-const config = require('../config');
-const merge = require('webpack-merge');
-const baseWebpackConfig = require('./webpack.base.conf');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+"use strict";
+const path = require("path");
+const utils = require("./utils");
+const webpack = require("webpack");
+const config = require("../config");
+const merge = require("webpack-merge");
+const baseWebpackConfig = require("./webpack.base.conf");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 // const CopyWebpackPlugin = require('copy-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const env = require('../config/dev.env');
+const env = require("../config/dev.env");
 
 const webpackConfig = merge(baseWebpackConfig, {
   module: {
@@ -22,18 +22,18 @@ const webpackConfig = merge(baseWebpackConfig, {
   devtool: config.dev.devtool,
   output: {
     path: config.build.assetsRoot,
-    filename: utils.assetsPath('js/[name].js'),
-    chunkFilename: utils.assetsPath('js/[id].js')
+    filename: utils.assetsPath("js/[name].js"),
+    chunkFilename: utils.assetsPath("js/[id].js")
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
-    new CleanWebpackPlugin('dist', {
-      root: path.resolve(__dirname, '../'),
+    new CleanWebpackPlugin(["dist/static", "dist/Views"], {
+      root: path.resolve(__dirname, "../"),
       verbose: false,
-      exclude: ['Controllers', 'Models']
+      exclude: ["web.config"]
     }),
     new webpack.DefinePlugin({
-      'process.env': env
+      "process.env": env
     }),
     // keep module.id stable when vendor modules does not change
     new webpack.HashedModuleIdsPlugin(),
@@ -41,24 +41,22 @@ const webpackConfig = merge(baseWebpackConfig, {
     new webpack.optimize.ModuleConcatenationPlugin(),
     // split vendor js into its own file
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      minChunks (module) {
+      name: "vendor",
+      minChunks(module) {
         // any required modules inside node_modules are extracted to vendor
         return (
           module.resource &&
           /\.js$/.test(module.resource) &&
-          module.resource.indexOf(
-            path.join(__dirname, '../node_modules')
-          ) === 0
-        )
+          module.resource.indexOf(path.join(__dirname, "../node_modules")) === 0
+        );
       }
     }),
     // extract webpack runtime and module manifest to its own file in order to
     // prevent vendor hash from being updated whenever app bundle is updated
     new webpack.optimize.CommonsChunkPlugin({
-      name: 'manifest',
+      name: "manifest",
       minChunks: Infinity
-    }),
+    })
     // // This instance extracts shared chunks from code splitted chunks and bundles them
     // // in a separate chunk, similar to the vendor chunk
     // // see: https://webpack.js.org/plugins/commons-chunk-plugin/#extra-async-commons-chunk
@@ -86,19 +84,13 @@ for (let chunkName in entryJS) {
   let entry = entryJS[chunkName];
   webpackConfig.plugins.push(
     new HtmlWebpackPlugin({
-      filename: 'views/' + chunkName + '.html',
-      template: entry.slice(0, -3) + '.html',
-      chunks: [chunkName, 'vendor', 'manifest'],
+      filename: "views/" + chunkName + ".html",
+      template: entry.slice(0, -3) + ".html",
+      chunks: [chunkName, "vendor", "manifest"],
       inject: true,
-      chunksSortMode: 'dependency'
+      chunksSortMode: "dependency"
     })
   );
-}
-
-if (config.build.bundleAnalyzerReport) {
-  const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-    .BundleAnalyzerPlugin;
-  webpackConfig.plugins.push(new BundleAnalyzerPlugin());
 }
 
 module.exports = webpackConfig;
